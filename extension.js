@@ -11,7 +11,7 @@ import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as Util from 'resource:///org/gnome/shell/misc/util.js';
 
-import {formatPanel, formatUsd, summarizeBalance} from './lib/balance.js';
+import {formatPanel, formatUsd, quotaFraction, summarizeBalance} from './lib/balance.js';
 
 const EXTENSION_UUID = 'ollama-quota@abdasis.github.io';
 const BASE_URL = 'https://ollama.com';
@@ -116,6 +116,7 @@ class OllamaQuotaIndicator extends PanelMenu.Button {
     this._refreshing = false;
     this._timerId = 0;
     this._tooltipText = '';
+    this._quotaPercent = null;
     this._intervalChangedId = 0;
     this._apiKeyChangedId = 0;
 
@@ -177,8 +178,48 @@ class OllamaQuotaIndicator extends PanelMenu.Button {
     return valueLabel;
   }
 
+  // Bilah kuota digambar sendiri: St tidak punya widget progress bawaan, dan
+  // lebarnya harus mengikuti persen sisa yang berubah tiap penyegaran.
+  _buildQuotaBar() {
+    const item = new PopupMenu.PopupBaseMenuItem({reactive: false, can_focus: false});
+    this._quotaBar = new St.DrawingArea({
+      style_class: 'ollama-quota-bar',
+      x_expand: true,
+    });
+    this._quotaBar.connect('repaint', () => this._drawQuotaBar());
+    item.add_child(this._quotaBar);
+    this.menu.addMenuItem(item);
+  }
+
+  _drawQuotaBar() {
+    const cr = this._quotaBar.get_context();
+    const [width, height] = this._quotaBar.get_surface_size();
+    if (!cr || width <= 0 || height <= 0)
+      return;
+
+    const node = this._quotaBar.get_theme_node();
+    this._paintPill(cr, width, height, height / 2, node.get_color('background-color'));
+
+    const fraction = quotaFraction(this._quotaPercent);
+    if (fraction === null || fraction <= 0)
+      return;
+
+    const filled = width * fraction;
+    this._paintPill(cr, filled, height, Math.min(height / 2, filled / 2), node.get_color('color'));
+  }
+
+  _paintPill(cr, width, height, radius, color) {
+    cr.newSubPath();
+    cr.arc(radius, height / 2, radius, Math.PI / 2, (Math.PI * 3) / 2);
+    cr.arc(width - radius, height / 2, radius, (Math.PI * 3) / 2, Math.PI / 2);
+    cr.closePath();
+    cr.setSourceRGBA(color.red / 255, color.green / 255, color.blue / 255, color.alpha / 255);
+    cr.fill();
+  }
+
   _buildMenu() {
     this._statusLabel = this._addInfoItem('Sisa kuota');
+    this._buildQuotaBar();
     this._resetLabel = this._addInfoItem('Reset');
     this._usageLabel = this._addInfoItem('Pemakaian 24 jam');
     this._updatedLabel = this._addInfoItem('Diperbarui');
@@ -266,6 +307,10 @@ class OllamaQuotaIndicator extends PanelMenu.Button {
     this._statusLabel.set_text(parts.join(' · '));
     this._applySeverity(this._statusLabel, summary.percent);
 
+    this._quotaPercent = summary.percent;
+    this._applySeverity(this._quotaBar, summary.percent);
+    this._quotaBar.repaint();
+
     this._resetLabel.set_text(summary.resetsAt
       ? formatLocalDateTime(summary.resetsAt)
       : '—');
@@ -285,6 +330,10 @@ class OllamaQuotaIndicator extends PanelMenu.Button {
 
     this._statusLabel.set_text('—');
     this._applySeverity(this._statusLabel, null);
+
+    this._quotaPercent = null;
+    this._applySeverity(this._quotaBar, null);
+    this._quotaBar.repaint();
 
     this._setTooltip(message);
   }
