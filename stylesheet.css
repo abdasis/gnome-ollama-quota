@@ -21,7 +21,6 @@
 /* Warna isi bilah ikut `color`; jalur kosong pakai abu netral agar terbaca
    di tema terang maupun gelap. */
 .ollama-quota-bar {
-  height: 6px;
   background-color: rgba(127, 127, 127, 0.35);
 }
 

@@ -184,6 +184,7 @@ class OllamaQuotaIndicator extends PanelMenu.Button {
     const item = new PopupMenu.PopupBaseMenuItem({reactive: false, can_focus: false});
     this._quotaBar = new St.DrawingArea({
       style_class: 'ollama-quota-bar',
+      style: 'height: 6px;',
       x_expand: true,
     });
     this._quotaBar.connect('repaint', () => this._drawQuotaBar());

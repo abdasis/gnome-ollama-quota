@@ -2,7 +2,8 @@
   "uuid": "ollama-quota@abdasis.github.io",
   "name": "Ollama Quota",
   "description": "Memantau sisa kuota Ollama Cloud di panel GNOME.",
-  "shell-version": ["46"],
+  "url": "https://github.com/abdasis/gnome-ollama-quota",
+  "shell-version": ["46", "47", "48", "49", "50"],
   "settings-schema": "org.gnome.shell.extensions.ollama-quota",
-  "version": 1
+  "version": 2
 }
