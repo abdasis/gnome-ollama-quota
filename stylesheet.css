@@ -1,3 +1,7 @@
+.ollama-quota-row {
+  spacing: 12px;
+}
+
 .ollama-quota-label,
 .ollama-quota-detail {
   font-variant-numeric: tabular-nums;

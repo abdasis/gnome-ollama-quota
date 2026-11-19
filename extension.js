@@ -1,3 +1,4 @@
+import Clutter from 'gi://Clutter';
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
@@ -129,34 +130,58 @@ class OllamaQuotaIndicator extends PanelMenu.Button {
   }
 
   _buildPanel() {
-    const iconPath = GLib.build_filenamev([this._extension.path, 'icons', 'ollama-symbolic.svg']);
+    const iconPath = GLib.build_filenamev([this._extension.path, 'icons', 'ollama-quota.png']);
     this._icon = new St.Icon({
       gicon: new Gio.FileIcon({file: Gio.File.new_for_path(iconPath)}),
       icon_size: 16,
       style_class: 'system-status-icon',
+      y_align: Clutter.ActorAlign.CENTER,
     });
 
-    this._label = new St.Label({text: '—', style_class: 'ollama-quota-label'});
+    this._label = new St.Label({
+      text: '—',
+      style_class: 'ollama-quota-label',
+      y_align: Clutter.ActorAlign.CENTER,
+    });
 
-    const box = new St.BoxLayout({style_class: 'panel-status-menu-box'});
+    const box = new St.BoxLayout({
+      style_class: 'panel-status-menu-box',
+      y_align: Clutter.ActorAlign.CENTER,
+    });
     box.add_child(this._icon);
     box.add_child(this._label);
     this.add_child(box);
   }
 
-  _addInfoItem(text) {
+  _addInfoItem(title) {
     const item = new PopupMenu.PopupBaseMenuItem({reactive: false, can_focus: false});
-    const label = new St.Label({text, style_class: 'ollama-quota-detail'});
-    item.add_child(label);
+    const row = new St.BoxLayout({x_expand: true, style_class: 'ollama-quota-row'});
+    const titleLabel = new St.Label({
+      text: title,
+      style_class: 'ollama-quota-title',
+      x_expand: true,
+      x_align: Clutter.ActorAlign.START,
+      y_align: Clutter.ActorAlign.CENTER,
+    });
+    const valueLabel = new St.Label({
+      text: '—',
+      style_class: 'ollama-quota-detail',
+      x_align: Clutter.ActorAlign.END,
+      y_align: Clutter.ActorAlign.CENTER,
+    });
+
+    row.add_child(titleLabel);
+    row.add_child(valueLabel);
+    item.add_child(row);
     this.menu.addMenuItem(item);
-    return label;
+    return valueLabel;
   }
 
   _buildMenu() {
-    this._statusLabel = this._addInfoItem('Sisa kuota: —');
-    this._resetLabel = this._addInfoItem('Reset: —');
-    this._usageLabel = this._addInfoItem('Pemakaian 24 jam: —');
-    this._updatedLabel = this._addInfoItem('Diperbarui: —');
+    this._statusLabel = this._addInfoItem('Sisa kuota');
+    this._resetLabel = this._addInfoItem('Reset');
+    this._usageLabel = this._addInfoItem('Pemakaian 24 jam');
+    this._updatedLabel = this._addInfoItem('Diperbarui');
 
     this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
@@ -232,7 +257,7 @@ class OllamaQuotaIndicator extends PanelMenu.Button {
     this._label.set_text(formatPanel(summary));
     this._applySeverity(this._label, summary.percent);
 
-    const parts = [`Sisa: ${formatPanel(summary)}`];
+    const parts = [formatPanel(summary)];
     if (Number.isFinite(summary.remainingUsd) && Number.isFinite(summary.allowanceUsd)) {
       parts.push(
         `${formatUsd(summary.remainingUsd)} dari ${formatUsd(summary.allowanceUsd)}`);
@@ -242,15 +267,14 @@ class OllamaQuotaIndicator extends PanelMenu.Button {
     this._applySeverity(this._statusLabel, summary.percent);
 
     this._resetLabel.set_text(summary.resetsAt
-      ? `Reset: ${formatLocalDateTime(summary.resetsAt)}`
-      : 'Reset: —');
+      ? formatLocalDateTime(summary.resetsAt)
+      : '—');
 
     this._usageLabel.set_text(usage
-      ? `Pemakaian 24 jam: ${usage.requestCount} request · ${formatUsd(usage.usageUsd)}`
-      : 'Pemakaian 24 jam: tidak tersedia');
+      ? `${usage.requestCount} request · ${formatUsd(usage.usageUsd)}`
+      : 'tidak tersedia');
 
-    this._updatedLabel.set_text(
-      `Diperbarui: ${GLib.DateTime.new_now_local().format('%H:%M')}`);
+    this._updatedLabel.set_text(GLib.DateTime.new_now_local().format('%H:%M'));
 
     this._setTooltip('');
   }
@@ -259,7 +283,7 @@ class OllamaQuotaIndicator extends PanelMenu.Button {
     this._label.set_text('—');
     this._applySeverity(this._label, null);
 
-    this._statusLabel.set_text('Sisa kuota: —');
+    this._statusLabel.set_text('—');
     this._applySeverity(this._statusLabel, null);
 
     this._setTooltip(message);
