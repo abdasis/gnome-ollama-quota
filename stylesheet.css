@@ -1,0 +1,15 @@
+.ollama-quota-label,
+.ollama-quota-detail {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+.ollama-quota-label.warning,
+.ollama-quota-detail.warning {
+  color: -st-warning-color;
+}
+
+.ollama-quota-label.critical,
+.ollama-quota-detail.critical {
+  color: -st-error-color;
+}
