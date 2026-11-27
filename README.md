@@ -139,4 +139,6 @@ untuk ekstensi ini dan cabut bila tidak dipakai lagi.
 
 ## Lisensi
 
-Belum ditentukan.
+GPL-3.0-or-later. Teks lengkap ada di [LICENSE](LICENSE). Setiap file sumber memuat penanda
+`SPDX-License-Identifier: GPL-3.0-or-later`; kamu boleh memakai, mengubah, dan menyebarkan ulang
+selama hasil turunannya tetap berlisensi sama.
