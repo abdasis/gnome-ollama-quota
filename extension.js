@@ -201,14 +201,30 @@ class OllamaQuotaIndicator extends PanelMenu.Button {
       return;
 
     const node = this._quotaBar.get_theme_node();
-    this._paintPill(cr, width, height, height / 2, node.get_color('background-color'));
+    const background = node.get_color('background-color');
+    this._paintPill(cr, width, height, height / 2, [
+      background.red / 255, background.green / 255, background.blue / 255,
+      background.alpha / 255,
+    ]);
 
     const fraction = quotaFraction(this._quotaPercent);
     if (fraction === null || fraction <= 0)
       return;
 
     const filled = width * fraction;
-    this._paintPill(cr, filled, height, Math.min(height / 2, filled / 2), node.get_color('color'));
+    this._paintPill(cr, filled, height, Math.min(height / 2, filled / 2),
+      this._quotaFillColor());
+  }
+
+  // Warna isi dipilih langsung, bukan dari `color` tema: DrawingArea di menu
+  // mewarisi warna teks yang samar sehingga bilah tidak terbaca.
+  _quotaFillColor() {
+    const percent = this._quotaPercent;
+    if (Number.isFinite(percent) && percent < CRITICAL_QUOTA_PERCENT)
+      return [0.88, 0.11, 0.14, 1];
+    if (Number.isFinite(percent) && percent < LOW_QUOTA_PERCENT)
+      return [0.96, 0.76, 0.07, 1];
+    return [0.19, 0.76, 0.49, 1];
   }
 
   _paintPill(cr, width, height, radius, color) {
@@ -216,7 +232,7 @@ class OllamaQuotaIndicator extends PanelMenu.Button {
     cr.arc(radius, height / 2, radius, Math.PI / 2, (Math.PI * 3) / 2);
     cr.arc(width - radius, height / 2, radius, (Math.PI * 3) / 2, Math.PI / 2);
     cr.closePath();
-    cr.setSourceRGBA(color.red / 255, color.green / 255, color.blue / 255, color.alpha / 255);
+    cr.setSourceRGBA(color[0], color[1], color[2], color[3]);
     cr.fill();
   }
 
@@ -311,8 +327,7 @@ class OllamaQuotaIndicator extends PanelMenu.Button {
     this._applySeverity(this._statusLabel, summary.percent);
 
     this._quotaPercent = summary.percent;
-    this._applySeverity(this._quotaBar, summary.percent);
-    this._quotaBar.repaint();
+    this._quotaBar.queue_repaint();
 
     this._resetLabel.set_text(summary.resetsAt
       ? formatLocalDateTime(summary.resetsAt)
@@ -335,8 +350,7 @@ class OllamaQuotaIndicator extends PanelMenu.Button {
     this._applySeverity(this._statusLabel, null);
 
     this._quotaPercent = null;
-    this._applySeverity(this._quotaBar, null);
-    this._quotaBar.repaint();
+    this._quotaBar.queue_repaint();
 
     this._setTooltip(message);
   }

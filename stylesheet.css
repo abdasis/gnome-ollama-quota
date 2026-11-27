@@ -18,16 +18,8 @@
   color: -st-error-color;
 }
 
-/* Warna isi bilah ikut `color`; jalur kosong pakai abu netral agar terbaca
-   di tema terang maupun gelap. */
+/* Jalur kosong bilah pakai abu netral agar terbaca di tema terang maupun
+   gelap; warna isi digambar langsung dari JavaScript. */
 .ollama-quota-bar {
   background-color: rgba(127, 127, 127, 0.35);
-}
-
-.ollama-quota-bar.warning {
-  color: -st-warning-color;
-}
-
-.ollama-quota-bar.critical {
-  color: -st-error-color;
 }
