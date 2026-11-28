@@ -3,7 +3,7 @@
   "name": "Ollama Quota",
   "description": "Memantau sisa kuota Ollama Cloud di panel GNOME.",
   "url": "https://github.com/abdasis/gnome-ollama-quota",
-  "shell-version": ["46", "47", "48", "49", "50"],
+  "shell-version": ["46", "47", "48", "49", "50", "51"],
   "settings-schema": "org.gnome.shell.extensions.ollama-quota",
-  "version": 2
+  "version": 3
 }

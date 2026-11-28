@@ -3,7 +3,7 @@
 Ekstensi GNOME Shell untuk memantau sisa kuota **Ollama Cloud** langsung dari panel atas.
 
 - UUID: `ollama-quota@abdasis.github.io`
-- Shell: `46`–`50` (lihat `metadata.json`; perbarui daftar bila ada versi lain yang diuji)
+- Shell: `46`–`51` (lihat `metadata.json`; perbarui daftar bila ada versi lain yang diuji)
 - Bahasa UI: Indonesia
 - Tanpa dependensi runtime di luar GNOME Shell (Soup 3, St, Adwaita)
 
@@ -33,7 +33,7 @@ Atur API key
 
 ## Kebutuhan
 
-- GNOME Shell 46–50
+- GNOME Shell 46–51
 - `libsoup` 3.0 dan GJS (sudah termasuk dalam GNOME Shell)
 - API key Ollama Cloud: https://ollama.com/settings/keys
 
